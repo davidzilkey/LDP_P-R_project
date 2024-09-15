@@ -1,0 +1,32 @@
+---
+title: "LDP_R-P_manuscript"
+author: "David R. Zilkey"
+date: "2024-09-15"
+output: html_document
+bibliography: LDP_R-P_bibliography.bib
+link-citations: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Abstract
+
+This is a test citation to see if I can figure out how it works [@mishra_changing_2011]. Looks like it does! Although,
+for some reason, I don't see a dropdown menu to select the citation when I type @ followed by the author name. Will
+need to figure out why this is in post-doc office hours. Here are two more citations, just for kicks: @dibike_response_2011, @sharma_widespread_2019. 
+
+## Introduction
+
+## Materials and Methods
+
+## Results
+
+## Discussion
+
+## Conclusion
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+## Citations
+
