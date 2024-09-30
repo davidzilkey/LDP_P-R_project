@@ -1,7 +1,7 @@
 # DATA DICTIONARY
 
 The data contained in this folder include the following .csv files:
-- ntl_icecover.csc
+- ntl_icecover.csv
   - North Temperate Lakes Ice Cover Data
   
 

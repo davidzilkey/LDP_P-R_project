@@ -1,2 +1,2 @@
 # READ ME
-This is a readme fill that will eventually be populated for the outdata folder.
+This folder contains the output of the scripts which cleaned lter ice cover data. 
