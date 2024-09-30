@@ -1,10 +1,14 @@
 ---
-title: "LDP_R-P_manuscript"
+title: 'Lake ice duration is decreasing in two Wisconsin lakes: a mini project for
+  the LDP Productivity and Reproducibility Course'
 author: "David R. Zilkey"
-date: "2024-09-15"
-output: html_document
-bibliography: LDP_R-P_bibliography.bib
+date: "2024-09-30"
+output:
+  pdf_document: default
+  html_document: default
+bibliography: "LDP_R-P_assignment.bib"
 link-citations: true
+csl: "science-of-the-total-environment.csl"
 ---
 
 ```{r setup, include=FALSE}
@@ -12,21 +16,99 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## Abstract
-
-This is a test citation to see if I can figure out how it works [@mishra_changing_2011]. Looks like it does! Although,
-for some reason, I don't see a dropdown menu to select the citation when I type @ followed by the author name. Will
-need to figure out why this is in post-doc office hours. Here are two more citations, just for kicks: @dibike_response_2011, @sharma_widespread_2019. 
+Lake ice is a critical component of lake ecosystems that we expect to decrease in response to warming temperatures associated with climate change. This study assessed the long-term trends in ice cover duration for two Wisconsin lakes. I observed a significant reduction in ice cover duration since 1850 for both lakes. These changes, probably driven by warming temperatures, are likely to drive changes in lake thermal stratification and affect lake biological communities.
 
 ## Introduction
 
+Lake ice is an important component of lake ecosystems, both for environmental and cultural reasons. Ice cover has important
+effects on winter limnological conditions and affects under-ice processes including thermal stratification and mixing, primary production, trophic interactions, and more [@imritClimateChangeContributing2021]. Many communities rely on ice cover to transport goods and for recreational activities such as fishing. Whether or not lake ice cover duration is decreasing is therefore of important concern. Here, we assess the long-term trends in lake ice cover duration for two Wisconsin lakes. 
+
 ## Materials and Methods
+
+### Data Collection
+Lake ice data has been recorded by the North Temperate Lakes Long-Term Ecological Research station dating back to 1851 (CE) [@magnuson2024]. Each year for Lakes Mendota and Monona, data include the date ice was first observed on the lake, when ice was last observed, and the duration of ice cover in days. These data were downloaded using the R package *lterdatasampler* [@horst2023]. 
+
+### Data processing and analyses
+All data processing was conducted in R (version 4.4.1) using R Studio [@rcoreteam2024]. I used the *tidyverse* package to identify 'NA' values (1852 for Lake Mendota, 1853 for both lakes) [@wickham2023]. I assessed the long-term trends in lake ice cover by modelling ice duration as a function of year. I used the gam() function from the *mgcv* package [@wood2023] to create both linear and generalized additive models. I evaluated which model fit best using the Akaike information criterion (AIC); a lower AIC means better model performance. We used the base R AIC() function and visualized model results using *ggplot2* [@wickham2024]. 
 
 ## Results
 
+```{r Data Import, include = FALSE}
+library(tidyverse)
+library(here)
+
+ice_data <- read_csv(here("00_rawdata", "ntl_icecover.csv"))
+
+ice_data_clean <- ice_data %>% 
+  drop_na()
+```
+
+```{r Modelling, include = FALSE}
+
+library(ggplot2)
+library(gridExtra)
+library(mgcv)
+
+#Set ggplot theme
+theme_set(theme_bw())
+
+
+mendota_lm <- gam(ice_duration ~ year, data = ice_data_clean %>% filter(lakeid == 'Lake Mendota'))
+
+
+# Explaining 22% of variability in ice cover duration
+
+monona_lm <- gam(ice_duration ~ year, data = ice_data_clean %>% filter(lakeid == 'Lake Monona'))
+
+#Explaining 26% of variability in ice cover duration
+
+mendota_fitted <- as.data.frame(fitted(mendota_lm)) %>% 
+  rename("fitted" = 'fitted(mendota_lm)') %>% 
+  mutate(lakeid = 'Lake Mendota') %>% 
+  bind_cols(ice_data_clean %>% filter(lakeid == 'Lake Mendota') %>% select(year))
+
+monona_fitted <- as.data.frame(fitted(monona_lm)) %>% 
+  rename("fitted" = 'fitted(monona_lm)') %>% 
+  mutate(lakeid = 'Lake Monona') %>% 
+  bind_cols(ice_data_clean %>% filter(lakeid == 'Lake Monona') %>% select(year))
+
+
+ice_data_mendota <- ice_data_clean %>% 
+  right_join(y = mendota_fitted, by = c('lakeid', 'year'))
+
+ice_data_monona <- ice_data_clean %>% 
+  right_join(y = monona_fitted, by = c('lakeid', 'year'))
+
+ice_data_modelled <- bind_rows(ice_data_mendota, ice_data_monona)
+
+rm(ice_data_mendota)
+rm(ice_data_monona)
+
+
+```
+In Lake Mendota, a linear model was significant (p < 0.05) and explained 22% of the variation in the data. The AIC was slightly lower for the GAM than the linear model (AIC = 1413 compared to 1409, respectively). In Lake Monona, a linear model was significant and explained 26% of the variation in the data. The AIC was the same for both the GAM and the linear model (AIC = 1411). In both lakes, the slope of the linear model was negative (Figure 1).
+
+```{r Plotting, echo = FALSE, fig.cap = 'Figure 1: Ice cover duration for Lake Mendota and Lake Monona since 1851. The red line represents the fitted linear model for each lake. The models explain 22% of the variation for Lake Mendota and 26% for Lake Monona.'}
+ice_data_modelled %>% 
+  ggplot(aes(x = year, y = ice_duration)) +
+  geom_path() +
+  geom_point() +
+  geom_line(aes(y = fitted), colour = "red", linewidth = 1.2) +
+  facet_wrap(vars(lakeid), nrow = 2) +
+  labs(y = "Ice Duration (days)", x = "Year (CE)")
+```
+
+
 ## Discussion
 
-## Conclusion
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+My results suggest that the duration of lake ice cover for Lakes Mendota and Monona has decreased significantly since 1850 by roughly 30 days per year (Figure 1). This phenomenon is observed in many other lakes from the northern hemisphere  [@imritClimateChangeContributing2021]. This process, almost certainly driven by climate change, is leading to significant changes in lake thermal stratification patterns and is likely to have downstream impacts on biological communities [@dibikeResponseNorthernHemisphere2011; @mishraChangingThermalDynamics2011].
+
+
+One aspect my study does not consider is the potential for intermittent ice cover to occur. The LTER ice cover dataset only considers the date of ice on and ice off, and not whether the ice remains frozen year round. One study suggests that nearly 15,000 lakes are at risk of experiencing intermittent ice coverage [@sharmaWidespreadLossLake2019].
+
+
+Lastly, the GAMs applied and tested in this paper did not consider the cyclical nature of the ice cover duration data, likely owing to multi-year climate oscillation patterns (e.g., El ni&#241;o, La ni&#241;a). It is possible that a better fitting model exists which explains more variation than the linear models applied here, which takes into account this cyclicity.
+
 
 ## Citations
 
