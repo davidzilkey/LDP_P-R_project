@@ -11,6 +11,9 @@ library(mgcv)
 #Set ggplot theme
 theme_set(theme_bw())
 
+#Import cleaned data from outdata
+ice_data_clean <- read_csv(here("02_outdata", "ice_data_clean.csv"))
+
 # Data visualization ----
 #What do the trends in ice cover data look like?
 ice_data_clean %>% 

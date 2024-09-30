@@ -21,3 +21,6 @@ ice_data %>%
 ice_data_clean <- ice_data %>% 
   drop_na()
 
+write.csv(ice_data_clean, file.path(here("02_outdata"), "ice_data_clean.csv"), row.names = FALSE)
+
+
