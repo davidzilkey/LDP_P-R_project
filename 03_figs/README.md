@@ -1,2 +1,3 @@
 # READ ME
-This is a readme fill that will eventually be populated for the figs folder.
+In this folder you will find .png versions of the figures presented in the
+manuscript.
